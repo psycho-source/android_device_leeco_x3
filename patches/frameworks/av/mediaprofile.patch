@@ -1,5 +1,5 @@
 diff --git a/include/media/MediaProfiles.h b/include/media/MediaProfiles.h
-index b1c7c15..80724da 100644
+index b1c7c15f8..43820e7c6 100644
 --- a/include/media/MediaProfiles.h
 +++ b/include/media/MediaProfiles.h
 @@ -34,7 +34,23 @@ enum camcorder_quality {
@@ -26,31 +26,7 @@ index b1c7c15..80724da 100644
  
      CAMCORDER_QUALITY_TIME_LAPSE_LIST_START = 1000,
      CAMCORDER_QUALITY_TIME_LAPSE_LOW  = 1000,
-@@ -46,7 +62,23 @@ enum camcorder_quality {
-     CAMCORDER_QUALITY_TIME_LAPSE_1080P = 1006,
-     CAMCORDER_QUALITY_TIME_LAPSE_QVGA = 1007,
-     CAMCORDER_QUALITY_TIME_LAPSE_2160P = 1008,
-+#if defined(MTK_MEDIA_PROFILES)
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_LOW              = 1108,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_MEDIUM           = 1109,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_HIGH             = 1110,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_FINE             = 1111,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_NIGHT_LOW        = 1112,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_NIGHT_MEDIUM     = 1113,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_NIGHT_HIGH       = 1114,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_NIGHT_FINE       = 1115,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_LIVE_EFFECT      = 1116,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_H264_HIGH        = 1117,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_MPEG4_1080P      = 1118,
-+    CAMCORDER_QUALITY_MTK_TIME_LAPSE_FINE_4K2K        = 1123,
-+    CAMCORDER_QUALITY_TIME_LAPSE_LIST_END             = 1123,
-+#else
-     CAMCORDER_QUALITY_TIME_LAPSE_LIST_END = 1008,
-+#endif// MTK_MEDIA_PROFILES
- 
-     CAMCORDER_QUALITY_HIGH_SPEED_LIST_START = 2000,
-     CAMCORDER_QUALITY_HIGH_SPEED_LOW  = 2000,
-@@ -55,7 +87,24 @@ enum camcorder_quality {
+@@ -55,7 +71,24 @@ enum camcorder_quality {
      CAMCORDER_QUALITY_HIGH_SPEED_720P = 2003,
      CAMCORDER_QUALITY_HIGH_SPEED_1080P = 2004,
      CAMCORDER_QUALITY_HIGH_SPEED_2160P = 2005,
@@ -75,34 +51,35 @@ index b1c7c15..80724da 100644
  
      CAMCORDER_QUALITY_VENDOR_START = 10000,
      CAMCORDER_QUALITY_VGA = 10000,
-
 diff --git a/media/libmedia/Android.mk b/media/libmedia/Android.mk
-index df4e4b6..77d73e3 100644
+index df4e4b6f6..723fbe765 100644
 --- a/media/libmedia/Android.mk
 +++ b/media/libmedia/Android.mk
-@@ -97,6 +97,10 @@ LOCAL_C_INCLUDES := \
+@@ -97,9 +97,12 @@ LOCAL_C_INCLUDES := \
      $(call include-path-for, audio-effects) \
      $(call include-path-for, audio-utils)
  
 +ifeq ($(BOARD_USES_MTK_MEDIA_PROFILES), true)
-+LOCAL_CFLAGS += -DMTK_MEDIA_PROFILES
++	LOCAL_CFLAGS += -DMTK_MEDIA_PROFILES
 +endif
 +
- ifeq ($(BOARD_USES_MTK_HARDWARE),true)
- LOCAL_SRC_FILES += \
-     mtkaudio_stubs.cpp
-
+ LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
+ LOCAL_CLANG := true
+ LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
+ 
+ include $(BUILD_SHARED_LIBRARY)
+-
 diff --git a/media/libmedia/MediaProfiles.cpp b/media/libmedia/MediaProfiles.cpp
-index dd72c16..d5b331e 100644
+index dd72c16a5..1f2ae039d 100644
 --- a/media/libmedia/MediaProfiles.cpp
 +++ b/media/libmedia/MediaProfiles.cpp
 @@ -47,6 +47,9 @@ const MediaProfiles::NameToTagMap MediaProfiles::sAudioEncoderNameMap[] = {
      {"aac",    AUDIO_ENCODER_AAC},
      {"heaac",  AUDIO_ENCODER_HE_AAC},
      {"aaceld", AUDIO_ENCODER_AAC_ELD},
-+#ifdef MTK_MEDIA_PROFILES
-+    {"vorbis", AUDIO_ENCODER_VORBIS},
-+#endif
++    #ifdef MTK_MEDIA_PROFILES
++      {"vorbis", AUDIO_ENCODER_VORBIS},
++    #endif
      {"lpcm",  AUDIO_ENCODER_LPCM},
  };
  
